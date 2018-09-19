@@ -8,13 +8,9 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+// use think\Route;
 
-Route::get('think', function () {
-    return 'hello,ThinkPHP5!';
-});
+Route::Controller('/myshopadmin','myshop_admin/Index');			//后台首页
 
-Route::get('hello/:name', 'index/hello');
 
-return [
 
-];
