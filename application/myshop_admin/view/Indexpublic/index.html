@@ -8,7 +8,7 @@
   <meta name="author" content="ThemeBucket">
   <link rel="shortcut icon" href="#" type="image/png">
 
-  <title>AdminX</title>
+  <title>{$title}</title>
 
   <!--icheck-->
   <link href="__PUBLIC__myshop_admin/js/iCheck/skins/minimal/minimal.css" rel="stylesheet">
@@ -78,11 +78,8 @@
                 <li class="active click_nav thisNav" thisNav = 'nav' thisTitle = 'index'><a href="#"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
                 <li class="menu-list thisNav" thisNav = 'nav'><a href=""><i class="fa fa-laptop"></i> <span>管理员</span></a>
                     <ul class="sub-menu-list">
-                        <li class = 'click_nav' thisTitle = 'list1'><a href="__URL__myshopadmin/admin"> 管理员列表</a></li>
-                        <li class = 'click_nav' thisTitle = 'list2'><a href="#"> Boxed Page</a></li>
-                        <li class = 'click_nav' thisTitle = 'list3'><a href="#"> Sidebar Collapsed</a></li>
-                        <li class = 'click_nav' thisTitle = 'list4'><a href="#"> Horizontal Menu</a></li>
-
+                        <li class = 'click_nav' thisTitle = 'admin'><a href="__URL__myshopadmin/admin"> 管理员列表</a></li>
+                        <li class = 'click_nav' thisTitle = 'adminadd'><a href="__URL__myshopadmin/adminadd"> 管理员添加</a></li>
                     </ul>
                 </li>
                 <li class="menu-list thisNav" thisNav = 'nav'><a href=""><i class="fa fa-laptop"></i> <span>Layouts</span></a>
@@ -149,13 +146,21 @@
 
             <!--toggle button start-->
             <a class="toggle-btn"><i class="fa fa-bars"></i></a>
-            <!--toggle button end-->
 
-            <!--search start-->
-            <form class="searchform" action="index.html" method="post">
-                <input type="text" class="form-control" name="keyword" placeholder="Search here..." />
-            </form>
-            <!--search end-->
+            <script type="text/javascript">
+                //缩略左侧导航栏
+                $('.toggle-btn').click(function(){
+                    var bodys = $('body').hasClass('left-side-collapsed');
+                    if(!bodys){
+                        $('.click_nav').removeClass('active');
+                        $('.click_nav').removeClass('nav-active');
+                        $('.thisNav').removeClass('active');
+                    }else{
+                        location.reload();
+                    }
+                });
+            </script>
+            <!--toggle button end-->
 
             <!--notification menu start -->
             <div class="menu-right">
@@ -352,13 +357,13 @@
         <!-- page heading start-->
         <div class="page-heading">
             <h3>
-                Dashboard
+                {$title}
             </h3>
             <ul class="breadcrumb">
                 <li>
-                    <a href="#">Dashboard</a>
+                    <a href="#">{$title}</a>
                 </li>
-                <li class="active"> My Dashboard </li>
+                <li class="active"> {$title_txt} </li>
             </ul>
 
         </div>
