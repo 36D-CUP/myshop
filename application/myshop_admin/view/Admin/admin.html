@@ -1,5 +1,17 @@
 {extend name='Indexpublic:index'}
 {block name='body'}
+<style>
+td a{
+  color:#fff !important;
+}
+td,th{
+  text-align: center !important;
+    vertical-align: middle !important;
+}
+.dataTables_info li{
+  cursor:pointer;
+}
+</style>
 <div class="row">
     <div class="col-sm-12">
         <section class="panel">
@@ -44,8 +56,8 @@
         <table  class="display table table-bordered table-striped" id="dynamic-table">
             <thead>
                 <tr>
-                    <th>系统ID</th>
-                    <th>管理员头像</th>
+                    <th style = 'width:80px'>系统ID</th>
+                    <th style = 'width:35px'>头像</th>
                     <th>管理员昵称</th>
                     <th>账号</th>
                     <th>权限等级</th>
@@ -54,22 +66,33 @@
                 </tr>
             </thead>
             <tbody>
-                {volist name='row' id='admin'}
+                {volist name='row' id='row'}
                 <tr class="gradeX">
-                    <td>{$admin.id}</td>
-                    <td>img</td>
-                    <td>{$admin.admin_name}</td>
-                    <td>{$admin.admin_user}</td>
-                    <td>{$admin.level}</td>
-                    <td>{$admin.status}</td>
-                    <td>操作</td>
+                    <td>{$row.id}</td>
+                    <td><img  style = 'width:35px;'src = "{$row['img']}"></td> 
+                    <td>{$row.admin_name}</td>
+                    <td>{$row.admin_user}</td>
+                    <td>{$row.level}</td>
+                    <td>
+                        <a href="#" class = "click_updata_status btn {if condition='($row.status==1)'}btn-success{else}btn-primary{/if} btn-sm" clickStatusKey ='status' thisID = "{$row['id']}" clickTable = '{$table}'  clickRes = '__URL__{$con}/click_updata_status' clickStatus="{$row['status']}" style ='color:#fff' clickq = '正常' clickj= '禁用'>
+                            {if condition="($row['status']==1)"}
+                                正常
+                            {else}
+                                禁用
+                            {/if}
+                        </a>
+                    </td>
+                    <td>
+                        <a  href="__URL__{$con}/{$fun}add/id/{$row['id']}"  class = 'btn btn-success btn-sm'>编辑</a>
+                        <a href="javascript:;" class = 'btn btn-warning btn-sm click_delete' thisID="{$row['id']}" clickRes = '__URL__{$con}/Click_delete' clickTable = '{$table}'>删除</a>
+                    </td>
                 </tr>
                 {/volist}
             </tbody>
             <tfoot>
                 <tr>
                     <th>系统ID</th>
-                    <th>管理员头像</th>
+                    <th>头像</th>
                     <th>管理员昵称</th>
                     <th>账号</th>
                     <th>权限等级</th>
@@ -114,10 +137,10 @@
       var data_num = "{$Request.param.data_num}";
       var type = "{$Request.param.type}";         //通过自定义函数getUrlParam(key);获取地址栏的参数
       window.location.href = '__URL__{$con}/{$fun}?data_num='+data_num+'&pro='+pro+'&search_type='+search_type+'&search_value='+search_value+'&type='+type;
-    });
+  });
     //显示条数
     $('#data_num').change(function(){
       window.location.href="__URL__{$con}/{$fun}/data_num/"+$(this).val();
-    });
+  });
 </script>
 {/block}

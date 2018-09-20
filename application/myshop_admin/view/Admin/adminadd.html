@@ -1,123 +1,108 @@
 {extend name='Indexpublic:index'}
 {block name='body'}
+<link href="__PUBLIC__myshop_admin/css/fileinput.min.css" rel="stylesheet"><!-- 上传 -->
+<script src="__PUBLIC__myshop_admin/js/fileinput.min.js"></script><!-- 上传 -->
 <div class="row">
-    <div class="col-sm-12">
-        <section class="panel">
-            <header class="panel-heading">
-                {$title_txt}
-<!-- <span class="tools pull-right">
-<a href="javascript:;" class="fa fa-chevron-down"></a>收起
-<a href="javascript:;" class="fa fa-times"></a>关闭
-</span> -->
-</header>
-<div class="panel-body">
-    <div class="row">
-        <div class="col-lg-3" style = 'float:left'>
-            <select class="selectpicker form-control" id = 'data_num' style = 'width: 80px;padding:0px !important;cursor:pointer;float:left;margin-right: 10px;'>
-                <option value="10" {if condition="($data_num==10)"}selected{/if}>10</option>
-                <option value="15" {if condition="($data_num==15)"}selected{/if}>15</option>
-                <option value="20" {if condition="($data_num==20)"}selected{/if}>20</option>
-                <option value="x" {if condition="($data_num==x)"}selected{/if}>全部</option>
-            </select>
-            <p style = 'line-height: 35px;'>
-                显示条数
-            </p>
-        </div>
-        <div class="col-lg-3" style='float:right;margin-bottom: 10px;'>
-            <form action = '' method="get">
-                <div class="">
-                    <select class="selectpicker form-control" name = 'search_type' style = 'width: 90px;padding:0px !important;cursor:pointer;float: left'>
-                        <option value = 'id'           {if condition="($s_ty == 'id')"}          selected{/if}> 系统Id     					</option>
-                        <option value = 'admin_user'   {if condition="($s_ty == 'admin_user')"} 	selected{/if}> 管理员账号 						</option>
-                        <option value = 'admin_name'   {if condition="($s_ty == 'admin_name')"} 		selected{/if}> 管理员昵称  					</option>
-                        <option value = 'status'       {if condition="($s_ty == 'status')"} 	selected{/if}> 状态(1为正常,2为暂停)  </option>
-                        <option value = 'level'        {if condition="($s_ty == 'level')"}   selected{/if}> 权限等级(1为一级,2为二级)	</option>
-                    </select>
-                    <input type="text" name = 'search_value' value = '{$s_val}' class = 'form-control' style = 'width: 180px;float: left;margin:0 5px;'>
-                    <input type="hidden" value = '1' name = 'type'>
-                    <button class = 'btn btn-default' style = 'float: left'>查询</button>
+    <section class="panel">
+        <header class="panel-heading" style = 'text-align: center;font-size:32px;height:100px;line-height: 80px;'>
+            {$title_txt}
+        </header>
+        <div class="panel-body">
+            <form class="form-horizontal adminex-form" method="get">
+
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-2 control-label">头像(1兆内)</label>
+                    <div class="col-sm-10">
+                        {if condition="($row['img'])"}<img style = 'width:200px;margin:10px' src = "{$row['img']}">{/if}
+                        <input name = 'imgs[]' id="file-0a" type="file" class="file" data-overwrite-initial="false" ><!-- multiple  -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-2 control-label">管理员账号</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control tooltips myupdata" name = 'admin_user' data-trigger="hover" data-toggle="tooltip" title="" placeholder="管理员账号" data-original-title="请输入管理员账号" value="{$row['admin_user']}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-2 control-label">管理员密码</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control tooltips myupdata" name = 'admin_pass' data-trigger="hover" data-toggle="tooltip" title="" placeholder="管理员密码" data-original-title="请输入管理员密码">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-2 control-label">昵称</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control tooltips myupdata" name = 'admin_name' data-trigger="hover" data-toggle="tooltip" title="" placeholder="昵称" data-original-title="请输入昵称" value="{$row['admin_name']}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-2 control-label">权限等级</label>
+                    <div class="col-sm-10">
+                            <select  style = 'width: 150px' class="selectpicker form-control" name = 'level' style = 'width: 80px;padding:0px !important;cursor:pointer'>
+                            {volist name="$level" id="vo"}
+                              <option style = 'width: 150px' value = '{$vo["id"]}' {if condition="($row['level']==$vo['id'])"}selected{/if}>{$vo['title']}</option>
+                            {/volist}
+                            </select>
+                    </div>
+                </div>
+
+
+                <!-- 隐藏id -->
+                <input type="hidden" class = 'myupdata' name = 'id' value="{$row['id']}">
+                <div  style="height: 80px;">
+                    <button class = 'btn btn-success' type = 'button' id = 'valiSub' onclick= '' style = 'display:block;margin:0 auto;width: 120px;margin-top: 30px'>提交</button>
                 </div>
             </form>
         </div>
-    </div>
-    <div class="adv-table">
-        <table  class="display table table-bordered table-striped" id="dynamic-table">
-            <thead>
-                <tr>
-                    <th>系统ID</th>
-                    <th>管理员头像</th>
-                    <th>管理员昵称</th>
-                    <th>账号</th>
-                    <th>权限等级</th>
-                    <th>状态</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                {volist name='row' id='admin'}
-                <tr class="gradeX">
-                    <td>{$admin.id}</td>
-                    <td>img</td>
-                    <td>{$admin.admin_name}</td>
-                    <td>{$admin.admin_user}</td>
-                    <td>{$admin.level}</td>
-                    <td>{$admin.status}</td>
-                    <td>操作</td>
-                </tr>
-                {/volist}
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th>系统ID</th>
-                    <th>管理员头像</th>
-                    <th>管理员昵称</th>
-                    <th>账号</th>
-                    <th>权限等级</th>
-                    <th>状态</th>
-                    <th>操作</th>
-                </tr>
-            </tfoot>
-        </table>
-        <!--分页-->
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="dataTables_info" id="editable-sample_info">
-                    <div class="dataTables_paginate paging_bootstrap pagination" id = 'page'>
-
-                        <ul>
-                            <li><a  class="prev" name = '1'>← 第一页</a></li>
-                            {for start="$pros" end="$proe"}
-                            <li ><a  {if condition="($pro == $i)"} style = 'background: #65cea7;color:#fff'{/if} name = '{$i}'>{$i}</a></li>
-                            {/for}
-                            <li ><a class="next" name = '{$page}'>最后一页 → </a></li>
-                            <li style = 'height:32px;line-height: 32px;padding:0 10px; '>总页数:{$page}</li>
-                            <li style = 'height:32px;line-height: 32px;padding:0 10px; '>总条数:{$nums}</li>
-                        </ul>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--分页 end-->
-    </div>
-
-</div>
-</section>
-</div>
+    </section>
 </div>
 <script type="text/javascript">
-    // 分页
-    $("#page").on('click','li a',function(){
-      var pro = $(this).attr('name');
-      var search_type = "{$Request.param.search_type}";
-      var search_value = "{$Request.param.search_value}";
-      var data_num = "{$Request.param.data_num}";
-      var type = "{$Request.param.type}";         //通过自定义函数getUrlParam(key);获取地址栏的参数
-      window.location.href = '__URL__{$con}/{$fun}?data_num='+data_num+'&pro='+pro+'&search_type='+search_type+'&search_value='+search_value+'&type='+type;
+    $("#file-0a").fileinput({
+        allowedFileExtensions : ['jpg', 'png','gif'],
+        overwriteInitial: false,
+        showUpload:false,
+        maxFileSize: 1000,
+        showUpload:false, 
+        browseClass:"btn btn-success",
+        maxFilesNum: 1,
+        
+        //allowedFileTypes: ['image', 'video', 'flash'],
+        slugCallback: function(filename) {
+            return filename.replace('(', '_').replace(']', '_');
+        }
     });
-    //显示条数
-    $('#data_num').change(function(){
-      window.location.href="__URL__{$con}/{$fun}/data_num/"+$(this).val();
+
+    $('#valiSub').click(function(event) {
+　　     //formdata储存异步上传数据
+        var formData = new FormData($('form')[0]);
+        formData.append('imgs',$('#file-0a')[0].files);
+        var myupdata = $(this).parents('form').find('.myupdata');
+        for(var i = 0 ; i<myupdata.length ; i++){
+            formData.append(myupdata.eq(i).attr('name'),myupdata.eq(i).val());
+        }
+
+        //坑点: 无论怎么传数据,console.log(formData)都会显示为空,但其实值是存在的,f12查看Net tab可以看到数据被上传了
+        $.ajax({
+            url:'__URL__{$con}/{$fun}',
+            type: 'POST',
+            data: formData,
+            //这两个设置项必填
+            contentType: false,
+            processData: false,
+            success:function(data){
+                alert(data);
+                if(data == '添加成功'){
+                    if(confirm('是否继续添加?')){
+                        location.reload();
+                    }else{
+                        window.location.href = '__URL__{$con}/{$index}';
+                    }
+                }else{
+                    location.reload();
+                }
+             }
+        })
     });
 </script>
 {/block}

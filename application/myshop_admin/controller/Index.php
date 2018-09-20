@@ -37,7 +37,6 @@ class Index extends Allow
                 }else{
                     $where[] = [$s_ty,'like', '%' . $s_val . '%'];
                 }
-                
                 $num = Db::table($table)->where($where)->count();                   //数据总数量
                 $data = Db::table($table)->where($where)->limit($str)->select();    //数据
             break;
@@ -47,29 +46,49 @@ class Index extends Allow
             break;
         }
 
+
+        //图片
+        $img  = Db::table($this->dbimg)->where('img_surface_name',$table)->select();        //获取所有管理员图片
+        //角色
+        $level = Db::table($this->dbt.'admin_role')->select();
+
+        //整理数据
+        for($i = 0 ; $i<count($data) ; $i++){
+            //整理图片
+            for($k = 0 ; $k<count($img) ; $k++){
+                if($data[$i]['id'] == $img[$k]['img_surface_id']){
+                    $data[$i]['img'] = $this->imgPath.$img[$k]['img_surface_name'].'/'.$img[$k]['img_path'];
+                }
+            }
+
+            //整理角色
+            for($k = 0 ; $k<count($level) ; $k++){
+                if($data[$i]['level'] == $level[$k]['id']){
+                    $data[$i]['level'] = $level[$k]['title'];
+                }
+            }
+        }
+
         //分页1.显示页数,2.数据数量,3当前页          封装在common
         $pageindex = pageindex($showNum , $num ,$pro);
 
 
-        $arr_data = [
-            'table'     => $table,                      //数据表名          
-            'con'       => 'myshopadmin',               //控制器名
-            'fun'       => 'admin',                     //admin
-            'showNum'   => $showNum,                    //显示页数
-            'pro'       => $pro,                        //当前页
-            'row'       => $data,                       //遍历数据
-            'title'     => '管理员管理',                 //主目录名称
-            'title_txt' => '管理员列表',                 //子目录名称
-            'page'      => $pageindex['arr_page'],      //页数
-            'nums'      => $pageindex['arr_nums'],      //共多少条数据
-            'pros'      => $pageindex['arr_pros'],      //分页开始
-            'proe'      => $pageindex['arr_proe'],      //分页结束
-            's_ty'      => $s_ty,                       //搜索键
-            's_val'     => $s_val,                      //搜索值
-        ];
 
-        //组装数据      封装在common
-        $arr = listindex($arr_data);
+
+        $arr['table']       = $table;                   //数据表名
+        $arr['con']         = 'myshopadmin';            //控制器名
+        $arr['fun']         = 'admin';                  //方法
+        $arr['showNum']     = $showNum;                 //显示页数 
+        $arr['pro']         = $pro;                     //当前页
+        $arr['row']         = $data;                    //遍历数据
+        $arr['title']       = '管理员管理';              //主目录名称
+        $arr['title_txt']   = '管理员列表';              //子目录名称
+        $arr['page']        = $pageindex['arr_page'];   //页数
+        $arr['nums']        = $pageindex['arr_nums'];   //共多少条数据
+        $arr['pros']        = $pageindex['arr_pros'];   //分页开始
+        $arr['proe']        = $pageindex['arr_proe'];   //分页结束
+        $arr['s_ty']        = $s_ty;                    //搜索键
+        $arr['s_val']       = $s_val;                   //搜索值
 
         return $this->fetch('Admin/admin',$arr);
     }
@@ -77,9 +96,140 @@ class Index extends Allow
     //管理员添加
     public function getAdminadd()
     {
-        return $this->fetch('Admin/adminadd');
+        $id = input('id');          //id
+
+        $table = $this->dbt.'admin';                    //数据表
+        //判断是否添加
+        if(empty($id)){
+            $title_txt  = '管理员添加';
+        }else{
+            $title_txt  = '管理员修改';
+            $data        = Db::table($table)->where('id',$id)->find();        //找出管理员
+
+            $old_img['img_surface_name'] = $table;                                      //组合图片条件
+            $old_img['img_surface_id']   = $id;
+            $img = Db::table($this->dbimg)->where($old_img)->find();                    //查找图片
+
+            if(!empty($img)){
+                $img = $this->imgPath.$img['img_surface_name'].DS.$img['img_path'];
+            }
+        }
+
+        //权限
+        $level = Db::Table($this->dbt.'admin_role')->select();
+
+
+        $arr['table']           = $table;               //数据表名  
+        $arr['con']             = 'myshopadmin';        //控制器名
+        $arr['fun']             = 'AdminDoAdd';         //方法
+        $arr['index']           = 'adminadd';           //跳到什么方法
+        $arr['title']           = '管理员管理';          //主目录名称
+        $arr['title_txt']       = $title_txt;           //子目录名称
+        $arr['row']             = $data;                //数据
+        $arr['img']             = $img;                 //图片
+        $arr['level']           = $level;               //权限
+        return $this->fetch('Admin/adminadd',$arr);
     }
 
+    //添加功能
+    public function postAdminDoAdd()
+    {
+        $id                     = input('id');                 //id
+        $data['admin_user']     = input('admin_user');         //用户账号
+        $data['admin_name']     = input('admin_name');         //用户名
+        $data['level']          = input('level');              //等级
+        //判断是改密码
+        if(!empty(input('admin_pass'))){
+            $data['admin_pass'] = input('admin_pass');         //密码     
+        }
 
+        $files               = request()->file('imgs');        //图片
+        $table = $this->dbt.'admin';
+        //判断是否修改或添加
+        if(!empty($id)){
+            $bool = Db::table($table)->where('id',$id)->update($data);          //更新数据
 
+            upload_file($files , $table , $id , 1);                             //操作图片
+
+        }else{
+            $bool = Db::table($table)->insertGetId($data);                      //插入数据
+
+            upload_file($files , $table , $bool , 1);                           //操作图片
+        }
+
+        echo $id==""?'添加成功':'修改成功';
+    }
+
+    //课程添加与修改功能
+    public function postTaskdoadd()
+    {
+        $id                  = input('id');                 //id
+        $data['title']       = input('title');              //标题
+        $data['e_title']     = input('e_title');            //标题,英
+        $data['time']        = strtotime(input('time'));    //时间
+        $data['sid']         = implode(',',input()['sid']); //标签
+        $data['describe']    = input('describe');           //简介
+        $data['e_describe']  = input('e_describe');         //简介英文
+        $data['effect']      = input('effect');             //效果
+        $data['e_effect']    = input('e_effect');           //效果英文
+        $data['careful']     = input('careful');            //注意
+        $data['e_careful']   = input('e_careful');          //注意英文
+
+        $files               = request()->file('imgs');
+
+        $table               = $this->dbt.'task';
+
+        //判断是否修改或添加
+        if(!empty($id)){
+            $bool = Db::table($table)->where('id',$id)->update($data);          //更新数据
+
+            upload_file($files , $table , $id , 1);                             //操作图片
+
+        }else{
+            $bool = Db::table($table)->insertGetId($data);                      //插入数据
+
+            upload_file($files , $table , $bool , 1);                           //操作图片
+        }
+
+        echo $id==""?'添加成功':'修改成功';
+    }
+
+//下面通用功能 ------------------------------------------------------------------------------------
+    //单击修改状态
+    public function postClick_updata_status()
+    {
+        $id     = input('id');                  //获取ID
+        $val    = input('val');                 //获取新值
+        $key    = input('key');                 //获取字段名
+        $table  = input('table');               //获取表名;
+
+        $bool = Click_updata_status($id,$val,$key,$table);
+        echo $bool;
+    }
+
+    //单击删除
+    public function postClick_delete()
+    {
+        $id    = input('id');                   //id
+        $table = input('table');                //表名
+
+        //删除图片
+        delete_file($table , $id);
+        //删除数据
+        $bool = Db::table($table)->where('id',$id)->delete();
+
+        echo $bool?"1":'no';
+    }
+
+    //双击修改名字
+    public function postDouble_updata_txt()
+    {
+        $id    = input('id');                   //获取ID
+        $val   = input('new_txt');              //获取新值
+        $key   = input('name');                 //获取字段名
+        $table = input('table');                //表
+
+        $bool = Db::table($table)->where('id',$id)->update([$key  => $val]);
+        echo $bool?'1':'2';
+    }
 }
