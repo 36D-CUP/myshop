@@ -103,7 +103,7 @@ use think\Db;
         id     对应数据表数据的id
         del    判断是否要删除原图片
                 1:将原数据所有图片删除,换上新图片,例如头像,
-                2:不做任何删除图片的操作
+                2:富文本编辑器的图片上传
      */ 
     function upload_file($files , $table , $id , $del=1)
     {
@@ -127,6 +127,7 @@ use think\Db;
                 }
             }
 
+            $str_path = array();
             //插入新图片
             foreach($files as $file){
                 $info = $file->move('uploads/'. $table);             //移动图片到指定目录
@@ -135,15 +136,40 @@ use think\Db;
                 $data_img['img_surface_name'] = $table;
                 $data_img['img_surface_id']   = $id;                                                        
 
+                $str_path[] = $img['img_surface_name'].'/'.$img['img_path'];
                 $bool = Db::table('ms_img')->where($old_data)->insert($data_img);                     //插入数据
             }
 
             if($bool){
-                return true;
+                return $str_path;
             }
 
         }else if($del == '2'){
+            $old_data['img_surface_name'] = $table;
+            $old_data['img_surface_id']   = $id;
+            $old_img  = DB::table('ms_img')->where($old_data)->select();                             //找出原图片
 
+
+
+            $str_path = array();
+            //插入新图片
+            foreach($files as $file){
+
+                $name = $file->getInfo()['name'];       //获取文件名
+                $new_name = explode('.', $name);        //找出后缀
+                $num = count($new_name);                //找出后缀
+
+                $rand = time().rand(100000,999999);     //随机名字
+
+                $info = $file->move('uploads/htmlimg/'. $table.'/'.$id,$rand.'.'.$new_name[$num-1]);             //移动图片到指定目录
+
+                $data_img         = str_replace('\\','/',$info->getSaveName());           //获取路径,组合条件
+                                              
+
+                $str_path[] = 'htmlimg/'. $table.'/'.$id.'/'.$data_img ;
+            }
+
+                return $str_path;
         }
 
     }

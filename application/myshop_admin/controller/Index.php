@@ -10,8 +10,11 @@ class Index extends Allow
     //首页
     public function getIndex()
     {
-        return $this->fetch('Indexpublic/index');
+        $arr['title']       = '管理员管理';              //主目录名称
+        $arr['title_txt']   = '管理员列表';              //子目录名称
+        return $this->fetch('Admin/index',$arr);
     }
+
 
     //管理员列表
     public function getAdmin()
@@ -89,6 +92,7 @@ class Index extends Allow
         $arr['proe']        = $pageindex['arr_proe'];   //分页结束
         $arr['s_ty']        = $s_ty;                    //搜索键
         $arr['s_val']       = $s_val;                   //搜索值
+        $arr['empty']      = "<tr><td colspan='100' style='text-align:center'>没有任何数据</td></tr>";      //显示条数
 
         return $this->fetch('Admin/admin',$arr);
     }
@@ -111,7 +115,7 @@ class Index extends Allow
             $img = Db::table($this->dbimg)->where($old_img)->find();                    //查找图片
 
             if(!empty($img)){
-                $img = $this->imgPath.$img['img_surface_name'].DS.$img['img_path'];
+                $img = $this->imgPath.$img['img_surface_name'].'/'.$img['img_path'];
             }
         }
 

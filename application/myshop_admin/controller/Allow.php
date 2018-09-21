@@ -15,6 +15,7 @@ Class Allow extends Controller
 	protected function initialize()
 	{
 	    Session_start();       //使用SESSION前必须调用该函数。
+
 		if(!isset($_SESSION['admin_id'])){
 			return $this->redirect($this->url.'myshoplogin/login');
 	    }

@@ -56,6 +56,6 @@ class Login extends Controller
         unset($_SESSION['admin_user']);
         unset($_SESSION['admin_id']);
         unset($_SESSION['admin_img']);
-    	$this->redirect("Login/login");
+    	$this->redirect("/myshop/public/myshoplogin/login");
     }
 }
